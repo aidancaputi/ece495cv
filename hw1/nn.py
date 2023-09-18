@@ -45,3 +45,16 @@ def fc_linear_layer(x, w, b):
         output.append(dot[i] + b[i])
 
     return output
+
+#sigmoid function element wise to a vector
+def sigmoid(vec):
+    e = 2.718281828459045
+    return [(1/(1 + (e**(-1 * x)))) for x in vec]
+
+#single layer perceptron
+def slp(x, w, b):
+    return sigmoid(fc_linear_layer(x, w, b))
+
+#multi-layer perceptron
+def mlp(x, w_vec, b_vec):
+    return

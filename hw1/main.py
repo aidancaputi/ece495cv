@@ -17,17 +17,17 @@ def main():
     print("\nNeural network: ")
     print(nn)
     
-    #test fully connected layer
-    input_vec = [1,2,3]
+    #testing
+    input_vec = [1,2]
     weights = [[1, 2],
-               [3, 4],
-               [5, 6]]
+               [3, 4]]
     bias = [3, 3]
     print("\nFully connected layer test: ")
     print("input: ", input_vec)
     print("weights: ", *weights, sep='\n')
     print("bias: ", bias)
-    print("gives", fc_linear_layer(input_vec, weights, bias))
+    print("fully-connected linear layer output: ", fc_linear_layer(input_vec, weights, bias))
+    print("single layer perceptron output: ", slp(input_vec, weights, bias))
 
 
 if __name__ == "__main__":
