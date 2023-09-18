@@ -13,7 +13,7 @@ def matmul(input_vec, weights_matrix):
 
     #make sure the two vectors are going to work together in terms of dimensions
     if(len(input_vec) != len(weights_matrix)):
-        return "Error multiplying " + input_vec + " and " + weights_matrix + ", their dimensions don't match!"
+        raise Exception("Error in matmul() -> " + input_vec + " and " + weights_matrix + ", their dimensions don't match!")
 
     output = []
     
@@ -57,4 +57,15 @@ def slp(x, w, b):
 
 #multi-layer perceptron
 def mlp(x, w_vec, b_vec):
-    return
+
+    #make sure weights and biases vectors are same length
+    if(len(w_vec) != len(b_vec)):
+        raise Exception("Error in mlp() -> not the same amount of weights and biases!")
+    
+    out = x
+
+    #loop through weights and bias and apply nested single layer perceptron starting from the first
+    for w, b in zip(w_vec, b_vec):
+        out = slp(out, w, b)
+
+    return out
