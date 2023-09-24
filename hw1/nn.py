@@ -1,4 +1,4 @@
-import math
+import math, random
 
 #multiplies input vector and weights
 def dot(input_vec, weights_matrix):
@@ -79,7 +79,46 @@ def loss(u, v):
     # (u - v) * (u - v)
     return dot(vminus(u, v), vminus(u, v))
 
-def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate):
+def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split):
+
+    #log the details of this training
+    print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split)
+
+    weights = initialize_weights(n_layers, hidden_units, input_dim, output_dim)
+
+    print(*weights, sep='\n')
+
+    return
+
+def initialize_weights(n_layers, hidden_units, input_dim, output_dim):
+    weights = []
+
+    for i in range(n_layers):
+
+        #this is the input layer weights
+        if(i == 0):
+            weights.append(generate_random_matrix(hidden_units, input_dim))
+        
+        #this is a middle hidden layer (i.e., not the output layer)
+        elif((i > 0) and (i < (n_layers - 1))):
+            weights.append(generate_random_matrix(hidden_units, hidden_units))
+
+        #this is the output layer
+        else:
+            weights.append(generate_random_matrix(output_dim, hidden_units))
+    
+    return weights
+
+def generate_random_matrix(n_rows, n_cols):
+    matrix = []
+    for i in range(n_rows):
+        row = []
+        for j in range(n_cols):
+            row.append(random.random())
+        matrix.append(row)
+    return matrix
+
+def print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split):
 
     print("\nTraining MLP network using the following data:")
     print("X data: ", X)
@@ -91,5 +130,6 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate):
     print("Output dimensions: ", output_dim)
     print("Number of hidden units in each layer: ", hidden_units)
     print("Learning rate: ", learning_rate)
+    print("Train/test split: ", train_test_split)
 
     return
