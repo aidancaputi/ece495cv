@@ -1,4 +1,3 @@
-from datasets import *
 from nn import *
 
 def main():

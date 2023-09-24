@@ -106,7 +106,7 @@ def generate_random_matrix(n_rows, n_cols):
     for i in range(n_rows):
         row = []
         for j in range(n_cols):
-            row.append(random.random())
+            row.append(random.uniform(-1, 1))
         matrix.append(row)
     return matrix
 
@@ -144,6 +144,7 @@ def print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, lear
 
     return
 
+#train the network
 def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split):
 
     #log the details of this training
@@ -156,5 +157,7 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
     #use hyperparameters to initialize biases to 0
     biases = initialize_biases(n_layers, hidden_units, output_dim)
     print(*biases, sep='\n')
+
+
 
     return
