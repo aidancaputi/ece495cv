@@ -144,6 +144,38 @@ def print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, lear
 
     return
 
+def split(X, y, train_test_split):
+
+    #make sure X and y data have matching sizes
+    if(len(X) != len(y)):
+        print("ERROR: X and y are not the same size. Check your training data to make sure every X has a y.")
+        exit(1)
+
+    X_train = X
+    y_train = y
+    X_test = []
+    y_test = []
+
+    num_samples = len(X)
+
+    train_size = int(train_test_split * num_samples)
+    test_size = num_samples - train_size
+
+    for i in range(test_size):
+
+        #randomly choose an index in X_train
+        chosen_idx = random.randint(0, len(X_train) - 1)
+
+        #pop the X_train and y_train values at that index 
+        popped_X = X_train.pop(chosen_idx)
+        popped_y = y_train.pop(chosen_idx)
+
+        #add the popped values to the test data
+        X_test.append(popped_X)
+        y_test.append(popped_y)
+
+    return X_train, y_train, X_test, y_test
+
 #train the network
 def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split):
 
@@ -158,6 +190,21 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
     biases = initialize_biases(n_layers, hidden_units, output_dim)
     print(*biases, sep='\n')
 
+    X_train, y_train, X_test, y_test = split(X, y, train_test_split)
+
+    print("training X: ", X_train)
+    print("training y: ", y_train)
+    print("test X: ", X_test)
+    print("test y: ", y_test)
+
+    #for each training X
+    #for cur_X, cur_y in zip(X_train, y_train):
+
+        #compute the loss between its actual y and the MLP output
+        #cur_loss = loss(cur_y, mlp(cur_X, weights, biases))
+
+        #update weights
+        #weights = weights - (learning_rate * gradient())
 
 
     return
