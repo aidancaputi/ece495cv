@@ -1,9 +1,10 @@
 import math, random
+from forward_mode import *
 
 #multiplies input vector and weights
 def dot(u, v):
 
-    print("doing dot product of " + str(u) + " and " + str(v))
+    #print("doing dot product of " + str(u) + " and " + str(v))
 
     #make sure the two vectors are going to work together in terms of dimensions
     if(len(u) != len(v[0])):
@@ -25,7 +26,7 @@ def dot(u, v):
         #add the column total to the output vector
         output.append(col_sum)
 
-    print("the dot product was " + str(output))
+    #print("the dot product was " + str(output))
 
     return output
 
@@ -78,15 +79,6 @@ def vector_subtraction(u, v):
     for i in range(len(u)):
         output.append(u[i] - v[i])
     return output
-
-#loss function
-def loss(u, v):
-    
-    # (u - v) * (u - v)
-    #note here we must make the second (u - v) an element of a list so that the dot function can work properly
-    #i.e., the dot function has to think that the vector is actually a matrix
-    #there is probably a smarter way around this but i am lazy
-    return dot(vector_subtraction(u, v), [vector_subtraction(u, v)])
 
 #take the hyperparameters and initialize the weights
 def initialize_weights(n_layers, hidden_units, input_dim, output_dim):
@@ -185,6 +177,19 @@ def split(X, y, train_test_split):
 
     return X_train, y_train, X_test, y_test
 
+#loss function
+def squared_loss(u, v):
+    
+    # (u - v) * (u - v)
+    #note here we must make the second (u - v) an element of a list so that the dot function can work properly
+    #i.e., the dot function has to think that the second vector is actually a matrix
+    #there is probably a smarter way around this but i am lazy
+    return dot(vector_subtraction(u, v), [vector_subtraction(u, v)])
+
+def squared_loss_gradient(weights, X, y):
+    
+    return ktimesv(-2, dot(vector_subtraction(y, dot(X, weights)), X))
+
 #train the network
 def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split):
 
@@ -210,12 +215,12 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
     for cur_X, cur_y in zip(X_train, y_train):
 
         #compute the loss between its actual y and the MLP output
-        print("\ncomputing loss between " + str(cur_y) + " and " + str(mlp(cur_X, weights, biases)))
-        cur_loss = loss(cur_y, mlp(cur_X, weights, biases))
-        print("loss was: ", cur_loss)
+        #print("\ncomputing loss between " + str(cur_y) + " and " + str(mlp(cur_X, weights, biases)))
+        cur_loss = squared_loss(cur_y, mlp(cur_X, weights, biases))
+        print("\nloss for " + str(cur_X) + " was: ", cur_loss)
 
-        #update weights
-        #weights = weights - (learning_rate * gradient())
+        #gradient descent
+        #weights = vector_subtraction(weights, ktimesv(learning_rate, squared_loss_gradient(weights, cur_X, cur_y)))
 
 
     return
