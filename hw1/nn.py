@@ -79,18 +79,9 @@ def loss(u, v):
     # (u - v) * (u - v)
     return dot(vminus(u, v), vminus(u, v))
 
-def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split):
-
-    #log the details of this training
-    print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split)
-
-    weights = initialize_weights(n_layers, hidden_units, input_dim, output_dim)
-
-    print(*weights, sep='\n')
-
-    return
-
+#take the hyperparameters and initialize the weights
 def initialize_weights(n_layers, hidden_units, input_dim, output_dim):
+
     weights = []
 
     for i in range(n_layers):
@@ -109,6 +100,7 @@ def initialize_weights(n_layers, hidden_units, input_dim, output_dim):
     
     return weights
 
+#generates a matrix with random numbers between 0 and 1
 def generate_random_matrix(n_rows, n_cols):
     matrix = []
     for i in range(n_rows):
@@ -118,6 +110,24 @@ def generate_random_matrix(n_rows, n_cols):
         matrix.append(row)
     return matrix
 
+def initialize_biases(n_layers, hidden_units, output_dim):
+    biases = []
+
+    #for each layer
+    for i in range(n_layers):
+        
+        #create bias vector with same size as output of that layer
+         #this is the input layer weights
+        if(i < (n_layers - 1)):
+            biases.append([0] * hidden_units)
+
+        #this is the output layer
+        else:
+            biases.append([0] * output_dim)
+
+    return biases
+
+#simply prints all the info about the network being trained
 def print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split):
 
     print("\nTraining MLP network using the following data:")
@@ -131,5 +141,20 @@ def print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, lear
     print("Number of hidden units in each layer: ", hidden_units)
     print("Learning rate: ", learning_rate)
     print("Train/test split: ", train_test_split)
+
+    return
+
+def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split):
+
+    #log the details of this training
+    print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split)
+
+    #use hyperparameters to initialize weights for the network
+    weights = initialize_weights(n_layers, hidden_units, input_dim, output_dim)
+    print(*weights, sep='\n')
+
+    #use hyperparameters to initialize biases to 0
+    biases = initialize_biases(n_layers, hidden_units, output_dim)
+    print(*biases, sep='\n')
 
     return
