@@ -1,15 +1,7 @@
-#created a dictionary with network information
-def create_nn(n_layers, in_dim, out_dim, hl_size, learning_rate):
-    nn = {}
-    nn.update({'n_layers':n_layers})
-    nn.update({'in_dim':in_dim})
-    nn.update({'out_dim':out_dim})
-    nn.update({'hl_size':hl_size})
-    nn.update({'learning_rate':learning_rate})
-    return nn
+import math
 
 #multiplies input vector and weights
-def matmul(input_vec, weights_matrix):
+def dot(input_vec, weights_matrix):
 
     #make sure the two vectors are going to work together in terms of dimensions
     if(len(input_vec) != len(weights_matrix)):
@@ -38,18 +30,17 @@ def fc_linear_layer(x, w, b):
     output = []
 
     #multiply input with weights
-    dot = matmul(x, w)
+    dot_prod = dot(x, w)
 
     #add bias to each value in the resulting vector
-    for i in range(len(dot)):
-        output.append(dot[i] + b[i])
+    for i in range(len(dot_prod)):
+        output.append(dot_prod[i] + b[i])
 
     return output
 
 #sigmoid function element wise to a vector
 def sigmoid(vec):
-    e = 2.718281828459045
-    return [(1/(1 + (e**(-1 * x)))) for x in vec]
+    return [(1/(1 + (math.exp(-1 * x)))) for x in vec]
 
 #single layer perceptron
 def slp(x, w, b):
@@ -69,3 +60,36 @@ def mlp(x, w_vec, b_vec):
         out = slp(out, w, b)
 
     return out
+
+#scale a vector element-wise by a constant
+def ktimesv(k, u): 
+    return [k*u[i] for i in range(len(u))]
+
+#vector addition
+def vplus(u, v): 
+    return [u[i]+v[i] for i in range(len(u))]
+
+#vector subtraction
+def vminus(u, v): 
+    return vplus(u, ktimesv(-1, v))
+
+#loss function
+def loss(u, v):
+
+    # (u - v) * (u - v)
+    return dot(vminus(u, v), vminus(u, v))
+
+def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate):
+
+    print("\nTraining MLP network using the following data:")
+    print("X data: ", X)
+    print("y data: ", y)
+
+    print("\nAnd the following parameters:")
+    print("Number of layers: ", n_layers)
+    print("Input dimensions: ", input_dim)
+    print("Output dimensions: ", output_dim)
+    print("Number of hidden units in each layer: ", hidden_units)
+    print("Learning rate: ", learning_rate)
+
+    return
