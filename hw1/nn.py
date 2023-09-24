@@ -1,26 +1,31 @@
 import math, random
 
 #multiplies input vector and weights
-def dot(input_vec, weights_matrix):
+def dot(u, v):
+
+    print("doing dot product of " + str(u) + " and " + str(v))
 
     #make sure the two vectors are going to work together in terms of dimensions
-    if(len(input_vec) != len(weights_matrix)):
-        raise Exception("Error in matmul() -> " + input_vec + " and " + weights_matrix + ", their dimensions don't match!")
+    if(len(u) != len(v[0])):
+        print("Error in matmul() -> " + str(u) + " and " + str(v) + ", their dimensions don't match!")
+        exit(1)
 
     output = []
     
-    #for each column in weights matrix
-    for i in range(len(weights_matrix[0])):
+    #for each row in weights matrix
+    for i in range(len(v)):
         col_sum = 0
 
-        #go through input vec
-        for j in range(len(input_vec)):
+        #go through input vec 
+        for j in range(len(u)):
 
-            #multiply each input vec value with the corresponding index of column of the matrix
-            col_sum += (input_vec[j] * weights_matrix[j][i])
+            #multiply the vector element times the correspending element in the matrix row
+            col_sum += (u[j]* v[i][j])
 
         #add the column total to the output vector
         output.append(col_sum)
+
+    print("the dot product was " + str(output))
 
     return output
 
@@ -51,7 +56,8 @@ def mlp(x, w_vec, b_vec):
 
     #make sure weights and biases vectors are same length
     if(len(w_vec) != len(b_vec)):
-        raise Exception("Error in mlp() -> not the same amount of weights and biases!")
+        print("Error in mlp() -> not the same amount of weights and biases!")
+        exit(1)
     
     out = x
 
@@ -65,19 +71,22 @@ def mlp(x, w_vec, b_vec):
 def ktimesv(k, u): 
     return [k*u[i] for i in range(len(u))]
 
-#vector addition
-def vplus(u, v): 
-    return [u[i]+v[i] for i in range(len(u))]
-
-#vector subtraction
-def vminus(u, v): 
-    return vplus(u, ktimesv(-1, v))
+def vector_subtraction(u, v):
+    if(len(u) != len(v)):
+        print()
+    output = []
+    for i in range(len(u)):
+        output.append(u[i] - v[i])
+    return output
 
 #loss function
 def loss(u, v):
-
+    
     # (u - v) * (u - v)
-    return dot(vminus(u, v), vminus(u, v))
+    #note here we must make the second (u - v) an element of a list so that the dot function can work properly
+    #i.e., the dot function has to think that the vector is actually a matrix
+    #there is probably a smarter way around this but i am lazy
+    return dot(vector_subtraction(u, v), [vector_subtraction(u, v)])
 
 #take the hyperparameters and initialize the weights
 def initialize_weights(n_layers, hidden_units, input_dim, output_dim):
@@ -198,10 +207,12 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
     print("test y: ", y_test)
 
     #for each training X
-    #for cur_X, cur_y in zip(X_train, y_train):
+    for cur_X, cur_y in zip(X_train, y_train):
 
         #compute the loss between its actual y and the MLP output
-        #cur_loss = loss(cur_y, mlp(cur_X, weights, biases))
+        print("\ncomputing loss between " + str(cur_y) + " and " + str(mlp(cur_X, weights, biases)))
+        cur_loss = loss(cur_y, mlp(cur_X, weights, biases))
+        print("loss was: ", cur_loss)
 
         #update weights
         #weights = weights - (learning_rate * gradient())

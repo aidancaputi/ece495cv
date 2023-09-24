@@ -21,7 +21,7 @@ def main():
     n_layers = 2 #number of layers
     input_dim = 2 #input dimensions
     output_dim = 1 #output dimensions
-    hidden_units = 3 #hidden units in each layer
+    hidden_units = 2 #hidden units in each layer
     learning_rate = 0.1 #learning rate
 
     train(X_xor, y_xor, n_layers, input_dim, output_dim, hidden_units, learning_rate, 0.75)
