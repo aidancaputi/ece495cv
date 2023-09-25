@@ -1,34 +1,46 @@
 import math, random
-from forward_mode import *
 
-#multiplies input vector and weights
-def dot(u, v):
+def dot(matrix1, matrix2):
 
-    #print("doing dot product of " + str(u) + " and " + str(v))
+    #print("doing dot prod with ", matrix1, matrix2)
 
-    #make sure the two vectors are going to work together in terms of dimensions
-    if(len(u) != len(v[0])):
-        print("Error in matmul() -> " + str(u) + " and " + str(v) + ", their dimensions don't match!")
+    if((len(matrix1[0]) == len(matrix2[0])) and (len(matrix1) == len(matrix2))):
+        matrix2 = transpose(matrix2)
+    
+    if len(matrix1[0]) != len(matrix2):
+        print("wrong size matrices, can't dot product")
         exit(1)
 
-    output = []
+    # Get the dimensions of the matrices
+    m1 = len(matrix1)
+    n1 = len(matrix1[0])
+    m2 = len(matrix2)
+    n2 = len(matrix2[0])
+
+    #resulting matrix is 
+    out = [[0]*n2 for i in range(m1)]
+
+    for i in range(m1):
+        for j in range(n2):
+            for k in range(n1):
+                out[i][j] += matrix1[i][k] * matrix2[k][j]
+
+    #print("result was: ", out)
+
+    return out
+
+def transpose(matrix):
+    #print("original matrix", matrix)
+    orig_rows = len(matrix)
+    orig_cols = len(matrix[0])
     
-    #for each row in weights matrix
-    for i in range(len(v)):
-        col_sum = 0
+    transposed = [[0]*orig_rows for i in range(orig_cols)]
 
-        #go through input vec 
-        for j in range(len(u)):
-
-            #multiply the vector element times the correspending element in the matrix row
-            col_sum += (u[j]* v[i][j])
-
-        #add the column total to the output vector
-        output.append(col_sum)
-
-    #print("the dot product was " + str(output))
-
-    return output
+    for i in range(orig_rows):
+        for j in range(orig_cols):
+            transposed[j][i] = matrix[i][j]
+    #print("transposed", transposed)
+    return transposed
 
 #multiple input and weights, then add bias
 def fc_linear_layer(x, w, b):
@@ -38,15 +50,23 @@ def fc_linear_layer(x, w, b):
     #multiply input with weights
     dot_prod = dot(x, w)
 
+    #print("dot was ", dot_prod)
+    #print("bias are: ", b)
+
     #add bias to each value in the resulting vector
     for i in range(len(dot_prod)):
-        output.append(dot_prod[i] + b[i])
+        new_row = []
+        for j in range(len(dot_prod[i])):
+            new_row.append(dot_prod[i][j] + b[i])
+        output.append(new_row)
+
+    #print("fc linear layer returned ", output)
 
     return output
 
 #sigmoid function element wise to a vector
 def sigmoid(vec):
-    return [(1/(1 + (math.exp(-1 * x)))) for x in vec]
+    return [[(1/(1 + (math.exp(-1 * x)))) for x in tt] for tt in vec]
 
 #single layer perceptron
 def slp(x, w, b):
@@ -65,19 +85,36 @@ def mlp(x, w_vec, b_vec):
     #loop through weights and bias and apply nested single layer perceptron starting from the first
     for w, b in zip(w_vec, b_vec):
         out = slp(out, w, b)
+        #print("out ", out)
 
     return out
 
 #scale a vector element-wise by a constant
 def ktimesv(k, u): 
-    return [k*u[i] for i in range(len(u))]
+    #print("scaling k=", k, "to matrix:", u)
+
+    scaled = []
+
+    for i in range(len(u)):
+        new_row = []
+        for j in range(len(u[0])):
+            new_row.append(u[i][j] * k)
+        scaled.append(new_row)
+
+    return scaled
 
 def vector_subtraction(u, v):
+
+    #print("subtracting ", u, v)
     if(len(u) != len(v)):
         print()
     output = []
     for i in range(len(u)):
-        output.append(u[i] - v[i])
+        new_row = []
+        for j in range(len(u[i])):
+            new_row.append(u[i][j] - v[i][j])
+        output.append(new_row)
+    #print("subtraction was ", output)
     return output
 
 #take the hyperparameters and initialize the weights
@@ -181,14 +218,15 @@ def split(X, y, train_test_split):
 def squared_loss(u, v):
     
     # (u - v) * (u - v)
-    #note here we must make the second (u - v) an element of a list so that the dot function can work properly
-    #i.e., the dot function has to think that the second vector is actually a matrix
-    #there is probably a smarter way around this but i am lazy
-    return dot(vector_subtraction(u, v), [vector_subtraction(u, v)])
+    return dot(vector_subtraction(u, v), vector_subtraction(u, v))
 
-def squared_loss_gradient(weights, X, y):
+def squared_loss_gradient(weights, input, output):
+
+    print("weights: ", weights)
+    print("input: ", input)
+    print("output: ",output)
     
-    return ktimesv(-2, dot(vector_subtraction(y, dot(X, weights)), X))
+    return ktimesv(-2, dot(vector_subtraction(output, dot(input, weights)), input))
 
 #train the network
 def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split):
@@ -214,13 +252,10 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
     #for each training X
     for cur_X, cur_y in zip(X_train, y_train):
 
-        #compute the loss between its actual y and the MLP output
-        #print("\ncomputing loss between " + str(cur_y) + " and " + str(mlp(cur_X, weights, biases)))
-        cur_loss = squared_loss(cur_y, mlp(cur_X, weights, biases))
-        print("\nloss for " + str(cur_X) + " was: ", cur_loss)
+        #perform forward pass and then calculate the loss 
+        print("\nperforming front pass")
+        pred = mlp(cur_X, weights, biases)
 
-        #gradient descent
-        #weights = vector_subtraction(weights, ktimesv(learning_rate, squared_loss_gradient(weights, cur_X, cur_y)))
-
+        #backprop through layers
 
     return
