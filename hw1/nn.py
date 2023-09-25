@@ -7,6 +7,12 @@ def dot(matrix1, matrix2):
     if((len(matrix1[0]) == len(matrix2[0])) and (len(matrix1) == len(matrix2))):
         matrix2 = transpose(matrix2)
     
+    if((len(matrix1[0]) == 1) and (len(matrix1) == 1)):
+        return ktimesv(matrix1[0][0], matrix2)
+    
+    if((len(matrix2[0]) == 1) and (len(matrix2) == 1)):
+        return ktimesv(matrix2[0][0], matrix1)
+    
     if len(matrix1[0]) != len(matrix2):
         print("wrong size matrices, can't dot product")
         exit(1)
@@ -221,10 +227,12 @@ def squared_loss(u, v):
     return dot(vector_subtraction(u, v), vector_subtraction(u, v))
 
 #this must return something that is the same size as weights
-def squared_loss_gradient(u, v, weights):
+def squared_loss_gradient(weights, X, y, pred):
+    #print(vector_subtraction(y, pred), weights)
 
-    print(u , v, weights)
-    return dot(ktimesv(2, vector_subtraction(u, v)), weights)
+    #print(dot(vector_subtraction(y, pred), weights))
+
+    return ktimesv(2, dot(vector_subtraction(y, pred), weights))
     
 
 #train the network
@@ -235,11 +243,10 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
 
     #use hyperparameters to initialize weights for the network
     weights = initialize_weights(n_layers, hidden_units, input_dim, output_dim)
-    print(*weights, sep='\n')
-
+    
     #use hyperparameters to initialize biases to 0
     biases = initialize_biases(n_layers, hidden_units, output_dim)
-    print(*biases, sep='\n')
+    #print(*biases, sep='\n')
 
     X_train, y_train, X_test, y_test = split(X, y, train_test_split)
 
@@ -248,11 +255,16 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
     print("test X: ", X_test)
     print("test y: ", y_test)
 
+    print("\ninital weights:")
+    print(*weights, sep='\n')
+
+    epoch = 0
+
     #for each training X
     for cur_X, cur_y in zip(X_train, y_train):
 
         #perform forward pass and then calculate the loss 
-        print("\nperforming front pass")
+        print("performing front pass")
         pred = mlp(cur_X, weights, biases)
 
         loss = squared_loss(cur_y, pred)
@@ -261,18 +273,23 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
         for layer in range(n_layers - 1, -1, -1):
             
             if(layer == (n_layers - 1)):
-                print("output layer original weights: ", weights[layer])
-                weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(pred, cur_y, weights[layer])))
-                print("output layer updated weights: ", weights[layer])
+                #print("output layer original weights: ", weights[layer])
+                weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], cur_X, cur_y, pred)))
+                #print("output layer updated weights: ", weights[layer])
             elif(layer == 0):
-                print("input layer original weights: ", weights[layer])
-                weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(pred, cur_y, weights[layer])))
-                print("input layer updated weights: ", weights[layer])
+                #print("input layer original weights: ", weights[layer])
+                #print("TEST", weights[layer], squared_loss_gradient(weights[layer], cur_X, cur_y, pred))
+                weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], cur_X, cur_y, pred)))
+                #print("input layer updated weights: ", weights[layer])
             else:
-                print("hidden layer original weights: ", weights[layer])
-                weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(pred, cur_y, weights[layer])))
-                print("hidden layer updated weights: ", weights[layer])
+                #print("hidden layer original weights: ", weights[layer])
+                weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], cur_X, cur_y, pred)))
+                #print("hidden layer updated weights: ", weights[layer])
 
+    epoch += 1
+
+    print("\nweights after " + str(epoch) + " epoch(s):")
+    print(*weights, sep='\n')
 
 
 
