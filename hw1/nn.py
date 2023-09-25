@@ -220,13 +220,12 @@ def squared_loss(u, v):
     # (u - v) * (u - v)
     return dot(vector_subtraction(u, v), vector_subtraction(u, v))
 
-def squared_loss_gradient(weights, input, output):
+#this must return something that is the same size as weights
+def squared_loss_gradient(u, v, weights):
 
-    print("weights: ", weights)
-    print("input: ", input)
-    print("output: ",output)
+    print(u , v, weights)
+    return dot(ktimesv(2, vector_subtraction(u, v)), weights)
     
-    return ktimesv(-2, dot(vector_subtraction(output, dot(input, weights)), input))
 
 #train the network
 def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split):
@@ -256,6 +255,25 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
         print("\nperforming front pass")
         pred = mlp(cur_X, weights, biases)
 
-        #backprop through layers
+        loss = squared_loss(cur_y, pred)
+
+        #for every layer in the network
+        for layer in range(n_layers - 1, -1, -1):
+            
+            if(layer == (n_layers - 1)):
+                print("output layer original weights: ", weights[layer])
+                weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(pred, cur_y, weights[layer])))
+                print("output layer updated weights: ", weights[layer])
+            elif(layer == 0):
+                print("input layer original weights: ", weights[layer])
+                weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(pred, cur_y, weights[layer])))
+                print("input layer updated weights: ", weights[layer])
+            else:
+                print("hidden layer original weights: ", weights[layer])
+                weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(pred, cur_y, weights[layer])))
+                print("hidden layer updated weights: ", weights[layer])
+
+
+
 
     return
