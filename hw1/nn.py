@@ -231,7 +231,7 @@ def squared_loss(u, v):
     return dot(vector_subtraction(u, v), vector_subtraction(u, v))
 
 #this must return something that is the same size as weights
-def squared_loss_gradient(weights, bias, prev_layer_output, cost):
+def squared_loss_gradient(weights, bias, prev_layer_output, cost, mode):
 
     #print("Enter gradient")
     #print("prev output:", prev_layer_output)
@@ -253,8 +253,10 @@ def squared_loss_gradient(weights, bias, prev_layer_output, cost):
     b = dot(sig_dot_sig, cost)
 
     #print("b", b)
+    if(mode == "weight"):
+        return dot(transpose(prev_layer_output), b)
     
-    return dot(transpose(prev_layer_output), b)
+    return b
 
 def activate_prediction(prediction):
     orig_rows = len(prediction)
@@ -323,17 +325,17 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
 
                 #hidden to output layer
                 if(layer == (n_layers - 1)):
-                    weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], biases[layer], cache[layer - 1], ktimesv(2, vector_subtraction(cur_y, pred)))))
-                    #biases[layer] = vector_subtraction(biases[layer], ktimesv(learning_rate, squared_loss_gradient(biases[layer], cur_X, cur_y, pred)))
+                    weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], biases[layer], cache[layer - 1], ktimesv(2, vector_subtraction(cur_y, pred)), mode="weight")))
+                    biases[layer] = vector_subtraction(biases[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], biases[layer], cache[layer - 1], ktimesv(2, vector_subtraction(cur_y, pred)), mode="bias")))
                 
                 #input to hidden
                 elif(layer == 0):
-                    weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], biases[layer], cur_X, cache[layer])))
-                    #biases[layer] = vector_subtraction(biases[layer], ktimesv(learning_rate, squared_loss_gradient(biases[layer], cur_X, cur_y, pred)))
+                    weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], biases[layer], cur_X, cache[layer], mode="weight")))
+                    biases[layer] = vector_subtraction(biases[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], biases[layer], cur_X, cache[layer], mode="bias")))
 
                 #hidden to hidden
                 else:
-                    weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], cur_X, cur_y, pred)))
+                    weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], cur_X, cur_y, pred, "weight")))
                     #biases[layer] = vector_subtraction(biases[layer], ktimesv(learning_rate, squared_loss_gradient(biases[layer], cur_X, cur_y, pred)))
 
 

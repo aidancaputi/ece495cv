@@ -49,7 +49,7 @@ def main():
     hidden_units = 5 #hidden units in each layer
     learning_rate = 0.01 #learning rate
     train_test_split = 0.75 #percent of data to be used for training, remaining is testing
-    num_epochs = 1000 #number of iterations through training data
+    num_epochs = 100 #number of iterations through training data
 
     #should be able to try changing combinations of the following:
         #number of layers
