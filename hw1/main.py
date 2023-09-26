@@ -47,7 +47,7 @@ def main():
     input_dim = len(X[0][0]) #input dimensions
     output_dim = len(y[0][0]) #output dimensions
     hidden_units = 5 #hidden units in each layer
-    learning_rate = 0.01 #learning rate
+    learning_rate = 0.00001 #learning rate
     train_test_split = 0.75 #percent of data to be used for training, remaining is testing
     num_epochs = 100 #number of iterations through training data
 

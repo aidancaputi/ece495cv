@@ -167,11 +167,11 @@ def initialize_biases(n_layers, hidden_units, output_dim):
         #create bias vector with same size as output of that layer
          #this is the input layer weights
         if(i < (n_layers - 1)):
-            biases.append([[random.uniform(-1, 1)] * hidden_units])
+            biases.append([[random.uniform(-1, 1) for x in range(hidden_units)]])
 
         #this is the output layer
         else:
-            biases.append([[random.uniform(-1, 1)] * output_dim])
+            biases.append([[random.uniform(-1, 1) for x in range(output_dim)]])
     #print("bioas:", biases)
     return biases
 
@@ -225,10 +225,11 @@ def split(X, y, train_test_split):
     return X_train, y_train, X_test, y_test
 
 #loss function
-def squared_loss(u, v):
+def squared_loss(y, pred):
     
     # (u - v) * (u - v)
-    return dot(vector_subtraction(u, v), vector_subtraction(u, v))
+    u_minus_v = vector_subtraction(y, pred)
+    return dot(u_minus_v, u_minus_v)
 
 #this must return something that is the same size as weights
 def squared_loss_gradient(weights, bias, prev_layer_output, cost, mode):
@@ -292,6 +293,8 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
 
     print("\ninital weights:")
     print(*weights, sep='\n')
+    print("\ninital biases:")
+    print(*biases, sep='\n')
 
     best_loss = 1.0
     best_accuracy = 0.0
@@ -311,12 +314,8 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
 
             print("model output:", pred, "and expected output was:", cur_y)
 
-            #if the front pass prediction was correct, increment the count of correct predictions in this epoch so we can compute training accuracy later
-            '''if(activate_prediction(pred) == cur_y):
-                correct += 1'''
-
             #compute loss and append it to the losses array
-            #loss_total += squared_loss(cur_y, pred)[0][0]
+            loss_total += squared_loss(cur_y, pred)[0][0]
 
             #print("performing back pass")
 
