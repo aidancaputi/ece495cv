@@ -50,25 +50,7 @@ def transpose(matrix):
 
 #multiple input and weights, then add bias
 def fc_linear_layer(x, w, b):
-    
-    output = []
-
-    #multiply input with weights
-    dot_prod = dot(x, w)
-
-    #print("dot was ", dot_prod)
-    #print("bias are: ", b)
-
-    #add bias to each value in the resulting vector
-    for i in range(len(dot_prod)):
-        new_row = []
-        for j in range(len(dot_prod[i])):
-            new_row.append(dot_prod[i][j] + b[i][j])
-        output.append(new_row)
-
-    #print("fc linear layer returned ", output)
-
-    return output
+    return vector_add(dot(x, w), b)
 
 #sigmoid function element wise to a vector
 def sigmoid(vec):
@@ -76,7 +58,6 @@ def sigmoid(vec):
 
 #single layer perceptron
 def slp(x, w, b):
-    #print("going to linear layer from slp")
     return sigmoid(fc_linear_layer(x, w, b))
 
 #multi-layer perceptron
@@ -89,13 +70,13 @@ def mlp(x, w_vec, b_vec):
         print("Error in mlp() -> not the same amount of weights and biases!")
         exit(1)
     
+    #start with input x value
     out = x
 
     #loop through weights and bias and apply nested single layer perceptron starting from the first
     for w, b in zip(w_vec, b_vec):
         out = slp(out, w, b)
         cache.append(out)
-        #print("out ", out)
 
     return out, cache
 
@@ -112,6 +93,20 @@ def ktimesv(k, u):
         scaled.append(new_row)
 
     return scaled
+
+def vector_add(u, v):
+
+    #print("adding ", u, v)
+    if(len(u) != len(v)):
+        print()
+    output = []
+    for i in range(len(u)):
+        new_row = []
+        for j in range(len(u[i])):
+            new_row.append(u[i][j] + v[i][j])
+        output.append(new_row)
+    #print("subtraction was ", output)
+    return output
 
 def vector_subtraction(u, v):
 
@@ -165,7 +160,7 @@ def initialize_biases(n_layers, hidden_units, output_dim):
     for i in range(n_layers):
         
         #create bias vector with same size as output of that layer
-         #this is the input layer weights
+        #this is the input layer weights
         if(i < (n_layers - 1)):
             biases.append([[random.uniform(-1, 1) for x in range(hidden_units)]])
 
@@ -232,44 +227,30 @@ def squared_loss(y, pred):
     return dot(u_minus_v, u_minus_v)
 
 #this must return something that is the same size as weights
-def squared_loss_gradient(weights, bias, prev_layer_output, cost, mode):
+def squared_loss_gradient(weights, bias, current_layer_input, wildcard, mode):
 
-    #print("Enter gradient")
-    #print("prev output:", prev_layer_output)
-    #print("weights:", weights)
+    '''print("\nEnter gradient with mode", mode)
+    print("weights:", weights)
+    print("bias:", bias)
+    print("layer input", current_layer_input)
+    print("wildcard", wildcard)'''
 
-    
-
-    #print("prev_layer output", prev_layer_output)
-    #print("cost", cost)
-
-    sig = slp(prev_layer_output, weights, bias)
+    sig = slp(current_layer_input, weights, bias)
 
     one_minus_sig = [[(1-element) for element in row] for row in sig]
-    #print("sig", sig,"1 min sig", one_minus_sig)
 
     sig_dot_sig = dot(sig, one_minus_sig)
-    #print("sig dot sig", sig_dot_sig)
 
-    b = dot(sig_dot_sig, cost)
+    b = dot(sig_dot_sig, wildcard)
 
-    #print("b", b)
+    #if we are computing weight gradients, we have to multiply by the output of the previous layer
     if(mode == "weight"):
-        return dot(transpose(prev_layer_output), b)
+        #print("resulting gradient: ", dot(b, current_layer_input))
+        return dot(b, current_layer_input)
     
+    #if we are computing bias gradient, we dont need to multiply by the output of the previous layer
+    #print("resulting gradient: ", b)
     return b
-
-def activate_prediction(prediction):
-    orig_rows = len(prediction)
-    orig_cols = len(prediction[0])
-    activated = [[0]*orig_rows for i in range(orig_cols)]
-    for row in range(orig_rows):
-        for col in range(orig_cols):
-            if(prediction[row][col] > 0.5):
-                activated[row][col] = 1
-            else:
-                activated[row][col] = 0
-    return activated
 
 #train the network
 def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split, epochs):
@@ -303,7 +284,8 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
 
         #losses and num correct predictions for this epoch
         loss_total = 0.0
-        correct = 0
+
+        #print(weights)
 
         #for each training X (i.e, an epoch)
         for cur_X, cur_y in zip(X_train, y_train):
@@ -312,33 +294,54 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
             #print("forward passing")
             pred, cache = mlp(cur_X, weights, biases)
 
-            print("model output:", pred, "and expected output was:", cur_y)
+            #print("prediction:", pred, "expected:", cur_y)
+            #print("cached: ", cache)
 
             #compute loss and append it to the losses array
             loss_total += squared_loss(cur_y, pred)[0][0]
 
             #print("performing back pass")
 
+            #BACKPROPAGATION
+            prev_grads = tuple()
+
             #for every layer in the network
             for layer in range(n_layers - 1, -1, -1):
 
                 #hidden to output layer
                 if(layer == (n_layers - 1)):
-                    weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], biases[layer], cache[layer - 1], ktimesv(2, vector_subtraction(cur_y, pred)), mode="weight")))
-                    biases[layer] = vector_subtraction(biases[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], biases[layer], cache[layer - 1], ktimesv(2, vector_subtraction(cur_y, pred)), mode="bias")))
+
+                    #print("\nold values for weights and biases in output layer:", weights[layer], biases[layer])
+                    weight_grad = transpose(squared_loss_gradient(weights[layer], biases[layer], cache[layer - 1], ktimesv(2, vector_subtraction(cur_y, pred)), mode="weight"))
+                    weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, weight_grad))
+                    
+                    bias_grad = transpose(squared_loss_gradient(weights[layer], biases[layer], cache[layer - 1], ktimesv(2, vector_subtraction(cur_y, pred)), mode="bias"))
+                    biases[layer] = vector_subtraction(biases[layer], ktimesv(learning_rate, bias_grad))
+
+                    prev_grads = (weight_grad, bias_grad)
+                    
+                    #print("gradients computed for output layer              : ", prev_grads[0], prev_grads[1])
+                    print("new values for weights and biases in output layer:", weights[layer], biases[layer])
                 
-                #input to hidden
-                elif(layer == 0):
-                    weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], biases[layer], cur_X, cache[layer], mode="weight")))
-                    biases[layer] = vector_subtraction(biases[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], biases[layer], cur_X, cache[layer], mode="bias")))
-
-                #hidden to hidden
+                #hidden
                 else:
-                    weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, squared_loss_gradient(weights[layer], cur_X, cur_y, pred, "weight")))
-                    #biases[layer] = vector_subtraction(biases[layer], ktimesv(learning_rate, squared_loss_gradient(biases[layer], cur_X, cur_y, pred)))
+
+                    #print("\nold values for weights and biases in hidden layer:", weights[layer], biases[layer])
+                    weight_grad = transpose(squared_loss_gradient(weights[layer], biases[layer], cur_X, dot(weights[layer + 1], prev_grads[1]), mode="weight"))
+                    weights[layer] = vector_subtraction(weights[layer], ktimesv(learning_rate, weight_grad))
+
+                    bias_grad = transpose(squared_loss_gradient(weights[layer], biases[layer], cur_X, dot(weights[layer + 1], prev_grads[1]), mode="bias"))
+                    biases[layer] = vector_subtraction(biases[layer], ktimesv(learning_rate, bias_grad))
+
+                    prev_grads = (weight_grad, bias_grad)
+                    
+                    #print("gradients computed for hidden layer              :", prev_grads[0], prev_grads[1])
+                    print("new values for weights and biases in hidden layer:", weights[layer], biases[layer])
 
 
-        print("epoch", epoch, "loss:", (loss_total / len(X_train)), "accuracy:", correct / len(X_train))
+
+                
+        print("epoch", epoch, "loss:", (loss_total / len(X_train)))
         '''print("weights:")
         print(*weights, sep='\n')
         print("biases:")
@@ -347,8 +350,6 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
         #update best loss and accuracy for model if this epoch bested them
         if((loss_total / len(X_train)) < best_loss):
             best_loss = (loss_total / len(X_train))
-        if((correct / len(X_train)) > best_accuracy):
-            best_accuracy = (correct / len(X_train))
 
     print('\nAfter training:')
     print("Best training accuracy:", best_accuracy)
