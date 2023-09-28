@@ -1,13 +1,14 @@
 from nn import *
 
+
 def main():
 
     #create a dict where keys are 'x', 'y', and 'out'
     X_xor = [
-        [[0, 0]],
-        [[0, 1]],
-        [[1, 0]],
-        [[1, 1]],
+        [[0], [0]],
+        [[0], [1]],
+        [[1], [0]],
+        [[1], [1]],
     ]
 
     y_xor = [
@@ -44,12 +45,12 @@ def main():
 
     
     n_layers = 2 #number of layers
-    input_dim = len(X[0][0]) #input dimensions
-    output_dim = len(y[0][0]) #output dimensions
+    input_dim = len(X[0]) #input dimensions
+    output_dim = len(y[0]) #output dimensions
     hidden_units = 2 #hidden units in each layer
-    learning_rate = 0.001 #learning rate
+    learning_rate = 0.01 #learning rate
     train_test_split = 0.75 #percent of data to be used for training, remaining is testing
-    num_epochs = 50 #number of iterations through training data
+    num_epochs = 100 #number of iterations through training data
 
     #should be able to try changing combinations of the following:
         #number of layers
