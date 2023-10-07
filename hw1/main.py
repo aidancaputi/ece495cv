@@ -3,17 +3,16 @@ from datasets import *
 
 def main():
 
+    #create dataset with 90/10 train/test split
     X, y = generate_xor_dataset(100)
-    for input, output in zip (X, y):
-        print(input, output)
-    exit(0)
+    X_train, y_train, X_test, y_test = train_test_slit(X, y, 0.9)
+    print(len(X_train), len(y_train), len(X_test), len(y_test))
 
     n_layers = 2 #number of layers
     input_dim = len(X[0]) #input dimensions
     output_dim = len(y[0]) #output dimensions
     hidden_units = 5 #hidden units in each layer
     learning_rate = 0.03 #learning rate
-    train_test_split = 0.75 #percent of data to be used for training, remaining is testing
     num_epochs = 2000 #number of iterations through training data
 
     #should be able to try changing combinations of the following:
@@ -23,7 +22,7 @@ def main():
         #train test split
         #epochs
 
-    train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split, num_epochs)
+    train(X_train, y_train, X_test, y_test, n_layers, input_dim, output_dim, hidden_units, learning_rate, num_epochs)
 
 
 if __name__ == "__main__":

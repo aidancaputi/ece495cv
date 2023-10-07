@@ -1,39 +1,34 @@
 import math, random
+#import numpy as np
 
 def dot(matrix1, matrix2):
 
-    #print("doing dot prod with ", matrix1, matrix2)
+    #print("dotting")
+    #print_size(matrix1)
+    #print_size(matrix2)
+    if(len(matrix1) == len(matrix2)):
+        '''print_size(matrix1)
+        print_size(matrix2)'''
+        result = elementwise_multiply(matrix1, matrix2)
+        #num = np.multiply(matrix1, matrix2)
 
-    if((len(matrix1[0]) == len(matrix2[0])) and (len(matrix1) == len(matrix2))):
-        matrix2 = transpose(matrix2)
+    else:
+        result = [[0.0]*len(matrix2[0]) for i in range(len(matrix1))]
+        #num = np.dot(matrix1, matrix2)
+
+        #print_size(result)
+
+        for i in range(len(result)):
+            for j in range(len(result[0])):
+                for k in range(len(matrix1[0])):
+                    result[i][j] += matrix1[i][k] * matrix2[k][j]
     
-    if((len(matrix1[0]) == 1) and (len(matrix1) == 1)):
-        return ktimesv(matrix1[0][0], matrix2)
+    '''print("my dot:", result)
+    print("numpy dot:", num)
+    np.testing.assert_allclose(result, num, rtol=1e-5, atol=0)'''
     
-    if((len(matrix2[0]) == 1) and (len(matrix2) == 1)):
-        return ktimesv(matrix2[0][0], matrix1)
-    
-    if len(matrix1[0]) != len(matrix2):
-        print("wrong size matrices, can't dot product")
-        exit(1)
 
-    # Get the dimensions of the matrices
-    m1 = len(matrix1)
-    n1 = len(matrix1[0])
-    m2 = len(matrix2)
-    n2 = len(matrix2[0])
-
-    #resulting matrix is 
-    out = [[0]*n2 for i in range(m1)]
-
-    for i in range(m1):
-        for j in range(n2):
-            for k in range(n1):
-                out[i][j] += matrix1[i][k] * matrix2[k][j]
-
-    #print("result was: ", out)
-
-    return out
+    return result
 
 def transpose(matrix):
     #print("original matrix", matrix)
@@ -62,32 +57,58 @@ def ktimesv(k, u):
 
     return scaled
 
-def vector_add(u, v):
+def elementwise_multiply(u, v):
 
-    #print("adding ", u, v)
-    if(len(u) != len(v)):
-        print()
+    if((len(u) != len(v)) or (len(u[0]) != len(v[0]))):
+        print("matrices must be same size to add elementwise")
+        print_size(u)
+        print_size(v)
+        print("are not the same size")
+        exit(0)
+
+    output = []
+    for i in range(len(u)):
+        new_row = []
+        for j in range(len(u[i])):
+            new_row.append(u[i][j] * v[i][j])
+        output.append(new_row)
+    
+    return output
+
+def elementwise_add(u, v):
+
+    if((len(u) != len(v)) or (len(u[0]) != len(v[0]))):
+        print("matrices must be same size to add elementwise")
+        print_size(u)
+        print_size(v)
+        print("are not the same size")
+        exit(0)
+
     output = []
     for i in range(len(u)):
         new_row = []
         for j in range(len(u[i])):
             new_row.append(u[i][j] + v[i][j])
         output.append(new_row)
-    #print("subtraction was ", output)
+    
     return output
 
-def vector_subtraction(u, v):
+def elementwise_sub(u, v):
 
-    #print("subtracting ", u, v)
-    if(len(u) != len(v)):
-        print()
+    if((len(u) != len(v)) or (len(u[0]) != len(v[0]))):
+        print("matrices must be same size to add elementwise")
+        print_size(u)
+        print_size(v)
+        print("are not the same size")
+        exit(0)
+    
     output = []
     for i in range(len(u)):
         new_row = []
         for j in range(len(u[i])):
             new_row.append(u[i][j] - v[i][j])
         output.append(new_row)
-    #print("subtraction was ", output)
+    
     return output
 
 #generates a matrix with random numbers between 0 and 1
@@ -99,3 +120,9 @@ def generate_random_matrix(n_rows, n_cols):
             row.append(random.uniform(-1, 1))
         matrix.append(row)
     return matrix
+
+def print_size(matrix):
+    if(isinstance(matrix[0], float)):
+        print("(", len(matrix), ",", 1, ")")
+    else: 
+        print("(", len(matrix), ",", len(matrix[0]), ")")

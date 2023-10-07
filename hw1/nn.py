@@ -1,13 +1,16 @@
 import math, random
 from helpers import *
 import matplotlib.pyplot as plt
+import numpy as np
 
 #multiple input and weights, then add bias
 def fc_linear_layer(x, w, b):
-    return vector_add(dot(w, x), b)
+    return dot(x, w)
+    #return vector_add(dot(w, x), b)
 
 #sigmoid function element wise to a vector
 def sigmoid(vec):
+    #return 1 / (1 + np.exp(-vec))
     return [[(1/(1 + (math.exp(-1 * x)))) for x in tt] for tt in vec]
 
 #single layer perceptron
@@ -43,7 +46,7 @@ def initialize_weights(n_layers, hidden_units, input_dim, output_dim):
 
         #this is the input layer weights
         if(i == 0):
-            weights.append(generate_random_matrix(hidden_units, input_dim))
+            weights.append(generate_random_matrix(input_dim, hidden_units))
         
         #this is a middle hidden layer (i.e., not the output layer)
         elif((i > 0) and (i < (n_layers - 1))):
@@ -51,7 +54,7 @@ def initialize_weights(n_layers, hidden_units, input_dim, output_dim):
 
         #this is the output layer
         else:
-            weights.append(generate_random_matrix(output_dim, hidden_units))
+            weights.append(generate_random_matrix(hidden_units, output_dim))
     
     return weights
 
@@ -64,11 +67,11 @@ def initialize_biases(n_layers, hidden_units, output_dim):
         #create bias vector with same size as output of that layer
         #this is the input layer weights
         if(i < (n_layers - 1)):
-            biases.append([[random.uniform(-1, 1)] for x in range(hidden_units)])
+            biases.append([random.uniform(-1, 1) for x in range(hidden_units)])
 
         #this is the output layer
         else:
-            biases.append([[random.uniform(-1, 1) for x in range(output_dim)]])
+            biases.append([random.uniform(-1, 1) for x in range(output_dim)])
     #print("bioas:", biases)
     return biases
 
@@ -89,47 +92,20 @@ def print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, lear
 
     return
 
-def split(X, y, train_test_split):
-
-    #make sure X and y data have matching sizes
-    if(len(X) != len(y)):
-        print("ERROR: X and y are not the same size. Check your training data to make sure every X has a y.")
-        exit(1)
-
-    X_train = X
-    y_train = y
-    X_test = []
-    y_test = []
-
-    num_samples = len(X)
-
-    train_size = int(train_test_split * num_samples)
-    test_size = num_samples - train_size
-
-    for i in range(test_size):
-
-        #randomly choose an index in X_train
-        chosen_idx = random.randint(0, len(X_train) - 1)
-
-        #pop the X_train and y_train values at that index 
-        popped_X = X_train.pop(chosen_idx)
-        popped_y = y_train.pop(chosen_idx)
-
-        #add the popped values to the test data
-        X_test.append(popped_X)
-        y_test.append(popped_y)
-
-    return X_train, y_train, X_test, y_test
-
 #loss function
-def squared_loss(y, pred):
+def loss_fn(y, pred):
     
     # (u - v) * (u - v)
-    u_minus_v = vector_subtraction(y, pred)
+    u_minus_v = elementwise_sub(y, pred)
     return dot(u_minus_v, u_minus_v)
 
-def sigmoid_derivative(input):
-    sig = sigmoid(input)
+#loss function
+def cost(y, pred):
+    
+    # (u - v) * (u - v)
+    return elementwise_sub(y, pred)
+
+def sigmoid_derivative(sig):
     one_minus_sig = [[(1-element) for element in row] for row in sig]
     return dot(sig, one_minus_sig)
 
@@ -146,43 +122,63 @@ def gradient(sigmoid_deriv, wildcard, input_to_layer, mode):
 
 def step(val):
     if(val >= 1.0):
-        return 1.0
-    return 0.0
+        return 1
+    return 0
 
 #train the network
-def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split, epochs):
+def train(X_train, y_train, X_test, y_test, n_layers, input_dim, output_dim, hidden_units, learning_rate, epochs):
 
     #log the details of this training
-    print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split)
+    #print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split)
+    #print_size(X_train)
 
-    #use hyperparameters to initialize weights for the network
+
     weights = initialize_weights(n_layers, hidden_units, input_dim, output_dim)
+    #print_size(weights[0])
+    #print_size(weights[1])
+    #print("initial weights", weights)
     
-    #use hyperparameters to initialize biases to 0
     biases = initialize_biases(n_layers, hidden_units, output_dim)
-    #print(*biases, sep='\n')
+    #print_size(biases[0])
+    #print_size(biases[1])
 
-    X_train, y_train, X_test, y_test = split(X, y, train_test_split)
-
-    print("training X: ", X_train)
-    print("training y: ", y_train)
-    print("test X: ", X_test)
-    print("test y: ", y_test)
-
-    '''print("\ninital weights:")
-    for w in weights:
-        print("weight at layer", weights.index(w) + 1)
-        print(*w, sep='\n')
-
-    print("\ninital biases:")
-    for b in biases:
-        print("bias at layer", biases.index(b) + 1)
-        print(*b, sep='\n')'''
+    print(weights[0])
+    print(weights[1])
 
     best_loss = 1.0
     losses = []
 
-    for epoch in range(1, epochs + 1, 1):
+    for epoch in range(1, epochs + 1):
+        #print("epoch", epoch)
+        out, cache = mlp(X_train, weights, biases)
+        layer1 = cache[0]
+        layer2 = cache[1]
+    
+        layer2_error = cost(out, y_train)
+        
+        layer2_delta = dot(layer2_error, sigmoid_derivative(layer2))
+
+        layer1_error = dot(layer2_delta, transpose(weights[1]))
+        layer1_delta = dot(layer1_error, sigmoid_derivative(layer1))
+
+        weights[1] = elementwise_sub(weights[1], ktimesv(learning_rate, dot(transpose(layer1), layer2_delta)))
+        weights[0] = elementwise_sub(weights[0], ktimesv(learning_rate, dot(transpose(X_train), layer1_delta)))
+        
+        
+    print("final weights")
+    print(weights[0])
+    print(weights[1])    
+
+    accurate = 0
+    prediction, cache = mlp(X_test, weights, biases)
+    for xt, pred, actual in zip(X_test, prediction, y_test):
+        print(xt, [int(_x > 0.5) for _x in pred], actual)
+        if([int(_x > 0.5) for _x in pred] == actual):
+            accurate += 1
+    print("final accuracy: ", float(accurate) / float(len(X_test)))
+    
+
+    '''for epoch in range(1, epochs + 1, 1):
 
         #losses and num correct predictions for this epoch
         loss_total = 0.0
@@ -200,7 +196,7 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
             #print("loss:", squared_loss(cur_y, pred)[0][0])
 
             #compute loss and append it to the losses array
-            loss_total += squared_loss(cur_y, pred)[0][0]
+            loss_total += loss(cur_y, pred)[0][0]
             
 
             #print("performing back pass")
@@ -283,6 +279,6 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
 
     print('\nAfter training:')
     #print("Best training accuracy:", best_accuracy)
-    print("Best loss:", best_loss)
+    print("Best loss:", best_loss)'''
 
     return
