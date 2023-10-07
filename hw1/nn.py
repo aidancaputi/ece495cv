@@ -130,26 +130,16 @@ def train(X_train, y_train, X_test, y_test, n_layers, input_dim, output_dim, hid
 
     #log the details of this training
     #print_train_status(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split)
-    #print_size(X_train)
-
 
     weights = initialize_weights(n_layers, hidden_units, input_dim, output_dim)
-    #print_size(weights[0])
-    #print_size(weights[1])
-    #print("initial weights", weights)
     
     biases = initialize_biases(n_layers, hidden_units, output_dim)
-    #print_size(biases[0])
-    #print_size(biases[1])
 
     print(weights[0])
     print(weights[1])
 
-    best_loss = 1.0
-    losses = []
-
     for epoch in range(1, epochs + 1):
-        #print("epoch", epoch)
+        print("epoch", epoch)
         out, cache = mlp(X_train, weights, biases)
         layer1 = cache[0]
         layer2 = cache[1]
@@ -170,12 +160,19 @@ def train(X_train, y_train, X_test, y_test, n_layers, input_dim, output_dim, hid
     print(weights[1])    
 
     accurate = 0
-    prediction, cache = mlp(X_test, weights, biases)
-    for xt, pred, actual in zip(X_test, prediction, y_test):
-        print(xt, [int(_x > 0.5) for _x in pred], actual)
-        if([int(_x > 0.5) for _x in pred] == actual):
+    losses = []
+    predictions = []
+
+    for x, y in zip(X_test, y_test):
+        in_x = [x]
+        pred, cache = mlp(in_x, weights, biases)
+        losses.append(loss_fn([y], pred)[0][0])
+        predictions.append(pred[0][0])
+        if(int(pred[0][0] > 0.5) == y[0]):
             accurate += 1
+
     print("final accuracy: ", float(accurate) / float(len(X_test)))
+    print("final test loss:", sum(losses) / len(predictions))
     
 
     '''for epoch in range(1, epochs + 1, 1):
