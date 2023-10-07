@@ -1,7 +1,5 @@
 import math, random
 from helpers import *
-import matplotlib.pyplot as plt
-import numpy as np
 
 #multiple input and weights, then add bias
 def fc_linear_layer(x, w, b):
@@ -135,29 +133,32 @@ def train(X_train, y_train, X_test, y_test, n_layers, input_dim, output_dim, hid
     
     biases = initialize_biases(n_layers, hidden_units, output_dim)
 
-    print(weights[0])
-    print(weights[1])
-
     for epoch in range(1, epochs + 1):
-        print("epoch", epoch)
+        
+        #front pass
         out, cache = mlp(X_train, weights, biases)
-        layer1 = cache[0]
-        layer2 = cache[1]
-    
-        layer2_error = cost(out, y_train)
         
-        layer2_delta = dot(layer2_error, sigmoid_derivative(layer2))
+        prev_grads = tuple()
 
-        layer1_error = dot(layer2_delta, transpose(weights[1]))
-        layer1_delta = dot(layer1_error, sigmoid_derivative(layer1))
+        for layer in range(n_layers - 1, -1, -1):
 
-        weights[1] = elementwise_sub(weights[1], ktimesv(learning_rate, dot(transpose(layer1), layer2_delta)))
-        weights[0] = elementwise_sub(weights[0], ktimesv(learning_rate, dot(transpose(X_train), layer1_delta)))
+            #hidden to output layer
+            if(layer == (n_layers - 1)):
+                output_grad = dot(cost(out, y_train), sigmoid_derivative(cache[layer]))
+                weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, dot(transpose(cache[layer - 1]), output_grad)))
+                prev_grads = (output_grad, 0)
+
+            #hidden to hidden layer
+            elif((layer != (n_layers - 1)) and (layer != 0)):
+                hid_grad = dot(dot(prev_grads[0], transpose(weights[layer + 1])), sigmoid_derivative(cache[layer]))
+                weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, dot(transpose(cache[layer - 1]), hid_grad))) 
+                prev_grads = (hid_grad, 0)
+
+            #input to hidden layer
+            else:
+                input_grad = dot(dot(prev_grads[0], transpose(weights[layer + 1])), sigmoid_derivative(cache[layer]))
+                weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, dot(transpose(X_train), input_grad)))  
         
-        
-    print("final weights")
-    print(weights[0])
-    print(weights[1])    
 
     accurate = 0
     losses = []
@@ -173,109 +174,5 @@ def train(X_train, y_train, X_test, y_test, n_layers, input_dim, output_dim, hid
 
     print("final accuracy: ", float(accurate) / float(len(X_test)))
     print("final test loss:", sum(losses) / len(predictions))
-    
-
-    '''for epoch in range(1, epochs + 1, 1):
-
-        #losses and num correct predictions for this epoch
-        loss_total = 0.0
-
-        #print(weights)
-
-        #for each training X (i.e, an epoch)
-        for cur_X, cur_y in zip(X_train, y_train):
-
-            #perform forward pass and add prediction to predictions vector
-            #print("forward passing")
-            pred, cache = mlp(cur_X, weights, biases)
-            #print("pred:", pred, "expected:", cur_y)
-            #print("cached outputs:", cache)
-            #print("loss:", squared_loss(cur_y, pred)[0][0])
-
-            #compute loss and append it to the losses array
-            loss_total += loss(cur_y, pred)[0][0]
-            
-
-            #print("performing back pass")
-
-            #BACKPROPAGATION
-            prev_grads = tuple()
-
-            #for every layer in the network
-            for layer in range(n_layers - 1, -1, -1):
-
-                #hidden to output layer
-                if(layer == (n_layers - 1)):
-
-                    #print("\nold values for weights and biases in output layer:", weights[layer], biases[layer])
-
-                    #compute bias and weight gradients, then save them for next layer
-                    weight_grad = gradient(sigmoid_derivative(cache[layer]), ktimesv(2, vector_subtraction(cur_y, pred)), transpose(cache[layer - 1]), "weights")
-                    bias_grad = gradient(sigmoid_derivative(cache[layer]), ktimesv(2, vector_subtraction(cur_y, pred)), None, "bias")
-                    prev_grads = (weight_grad, bias_grad)
-
-                    #print("gradients computed for output layer              : ", prev_grads[0], prev_grads[1])
-
-                    #update weights and bias
-                    weights[layer] = vector_subtraction(weights[layer], (ktimesv(learning_rate, weight_grad)))
-                    biases[layer] = vector_subtraction(biases[layer], (ktimesv(learning_rate, bias_grad)))
-                    
-                    #print("new values for weights and biases in output layer:", weights[layer], biases[layer])
-
-                    
-                
-                #input layer
-                elif(layer == 0):
-
-                    #print("\nold values for weights and biases in output layer:", weights[layer], biases[layer])
-
-                    #compute bias and weight gradients, then save them for next layer
-                    weight_grad = gradient(sigmoid_derivative(cache[layer]), dot(transpose(weights[layer + 1]), prev_grads[1]), transpose(cur_X), "weights")
-                    bias_grad = gradient(sigmoid_derivative(cache[layer]), dot(transpose(weights[layer + 1]), prev_grads[1]), None, "bias")
-                    prev_grads = (weight_grad, bias_grad)
-
-                    #print("gradients computed for output layer              : ", prev_grads[0], prev_grads[1])
-
-                    #update weights and bias
-                    weights[layer] = vector_subtraction(weights[layer], (ktimesv(learning_rate, weight_grad)))
-                    biases[layer] = vector_subtraction(biases[layer], (ktimesv(learning_rate, bias_grad)))
-                    
-                    #print("new values for weights and biases in output layer:", weights[layer], biases[layer])
-
-                    #exit(0)
-
-                #hidden to hidden layer
-                else:
-
-                    #print("\nold values for weights and biases in output layer:", weights[layer], biases[layer])
-
-                    #compute bias and weight gradients, then save them for next layer
-                    weight_grad = gradient(sigmoid_derivative(cache[layer]), dot(transpose(weights[layer + 1]), prev_grads[1]), transpose(cache[layer - 1]), "weights")
-                    bias_grad = gradient(sigmoid_derivative(cache[layer]), dot(transpose(weights[layer + 1]), prev_grads[1]), None, "bias")
-                    prev_grads = (weight_grad, bias_grad)
-
-                    #print("gradients computed for output layer              : ", prev_grads[0], prev_grads[1])
-
-                    #update weights and bias
-                    weights[layer] = vector_subtraction(weights[layer], (ktimesv(learning_rate, weight_grad)))
-                    biases[layer] = vector_subtraction(biases[layer], (ktimesv(learning_rate, bias_grad)))
-                    
-                    #print("new values for weights and biases in output layer:", weights[layer], biases[layer])
-
-                    #exit(0)
-
-        print("epoch", epoch, "loss:", (loss_total / len(X_train)))
-        losses.append((loss_total / len(X_train)))
-
-        #update best loss and accuracy for model if this epoch bested them
-        if((loss_total / len(X_train)) < best_loss):
-            best_loss = (loss_total / len(X_train))
-
-    #plt.plot(range(0, epochs, 1), losses)
-    #plt.show()
-
-    print('\nAfter training:')
-    #print("Best training accuracy:", best_accuracy)
-    print("Best loss:", best_loss)'''
 
     return
