@@ -2,58 +2,8 @@ import math, random
 from helpers import *
 import matplotlib.pyplot as plt
 
-def dot(matrix1, matrix2):
-
-    #print("doing dot prod with ", matrix1, matrix2)
-
-    if((len(matrix1[0]) == len(matrix2[0])) and (len(matrix1) == len(matrix2))):
-        matrix2 = transpose(matrix2)
-    
-    if((len(matrix1[0]) == 1) and (len(matrix1) == 1)):
-        return ktimesv(matrix1[0][0], matrix2)
-    
-    if((len(matrix2[0]) == 1) and (len(matrix2) == 1)):
-        return ktimesv(matrix2[0][0], matrix1)
-    
-    if len(matrix1[0]) != len(matrix2):
-        print("wrong size matrices, can't dot product")
-        exit(1)
-
-    # Get the dimensions of the matrices
-    m1 = len(matrix1)
-    n1 = len(matrix1[0])
-    m2 = len(matrix2)
-    n2 = len(matrix2[0])
-
-    #resulting matrix is 
-    out = [[0]*n2 for i in range(m1)]
-
-    for i in range(m1):
-        for j in range(n2):
-            for k in range(n1):
-                out[i][j] += matrix1[i][k] * matrix2[k][j]
-
-    #print("result was: ", out)
-
-    return out
-
-def transpose(matrix):
-    #print("original matrix", matrix)
-    orig_rows = len(matrix)
-    orig_cols = len(matrix[0])
-    
-    transposed = [[0]*orig_rows for i in range(orig_cols)]
-
-    for i in range(orig_rows):
-        for j in range(orig_cols):
-            transposed[j][i] = matrix[i][j]
-    #print("transposed", transposed)
-    return transposed
-
 #multiple input and weights, then add bias
 def fc_linear_layer(x, w, b):
-    #print("weights: ", w, "input:", x)
-    #print("weights dot input: ", dot(w, x))
     return vector_add(dot(w, x), b)
 
 #sigmoid function element wise to a vector
@@ -84,48 +34,6 @@ def mlp(x, w_vec, b_vec):
 
     return out, cache
 
-#scale a vector element-wise by a constant
-def ktimesv(k, u): 
-    #print("scaling k=", k, "to matrix:", u)
-
-    scaled = []
-
-    for i in range(len(u)):
-        new_row = []
-        for j in range(len(u[0])):
-            new_row.append(u[i][j] * k)
-        scaled.append(new_row)
-
-    return scaled
-
-def vector_add(u, v):
-
-    #print("adding ", u, v)
-    if(len(u) != len(v)):
-        print()
-    output = []
-    for i in range(len(u)):
-        new_row = []
-        for j in range(len(u[i])):
-            new_row.append(u[i][j] + v[i][j])
-        output.append(new_row)
-    #print("subtraction was ", output)
-    return output
-
-def vector_subtraction(u, v):
-
-    #print("subtracting ", u, v)
-    if(len(u) != len(v)):
-        print()
-    output = []
-    for i in range(len(u)):
-        new_row = []
-        for j in range(len(u[i])):
-            new_row.append(u[i][j] - v[i][j])
-        output.append(new_row)
-    #print("subtraction was ", output)
-    return output
-
 #take the hyperparameters and initialize the weights
 def initialize_weights(n_layers, hidden_units, input_dim, output_dim):
 
@@ -146,16 +54,6 @@ def initialize_weights(n_layers, hidden_units, input_dim, output_dim):
             weights.append(generate_random_matrix(output_dim, hidden_units))
     
     return weights
-
-#generates a matrix with random numbers between 0 and 1
-def generate_random_matrix(n_rows, n_cols):
-    matrix = []
-    for i in range(n_rows):
-        row = []
-        for j in range(n_cols):
-            row.append(random.uniform(-1, 1))
-        matrix.append(row)
-    return matrix
 
 def initialize_biases(n_layers, hidden_units, output_dim):
     biases = []
@@ -237,11 +135,6 @@ def sigmoid_derivative(input):
 
 #this must return something that is the same size as weights
 def gradient(sigmoid_deriv, wildcard, input_to_layer, mode):
-
-    '''print("\nEnter gradient with mode", mode)
-    print("sigmoid derivative:", sigmoid_deriv)
-    print("wildcard", wildcard)
-    print("layer input", input_to_layer)'''
     
     if(mode == "weights"):
         output = dot(sigmoid_deriv, dot(wildcard, input_to_layer))
@@ -250,6 +143,11 @@ def gradient(sigmoid_deriv, wildcard, input_to_layer, mode):
         output = dot(sigmoid_deriv, wildcard)
 
     return output
+
+def step(val):
+    if(val >= 1.0):
+        return 1.0
+    return 0.0
 
 #train the network
 def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, train_test_split, epochs):
@@ -271,7 +169,7 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
     print("test X: ", X_test)
     print("test y: ", y_test)
 
-    print("\ninital weights:")
+    '''print("\ninital weights:")
     for w in weights:
         print("weight at layer", weights.index(w) + 1)
         print(*w, sep='\n')
@@ -279,7 +177,7 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
     print("\ninital biases:")
     for b in biases:
         print("bias at layer", biases.index(b) + 1)
-        print(*b, sep='\n')
+        print(*b, sep='\n')'''
 
     best_loss = 1.0
     losses = []
@@ -297,7 +195,6 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
             #perform forward pass and add prediction to predictions vector
             #print("forward passing")
             pred, cache = mlp(cur_X, weights, biases)
-
             #print("pred:", pred, "expected:", cur_y)
             #print("cached outputs:", cache)
             #print("loss:", squared_loss(cur_y, pred)[0][0])
@@ -381,8 +278,8 @@ def train(X, y, n_layers, input_dim, output_dim, hidden_units, learning_rate, tr
         if((loss_total / len(X_train)) < best_loss):
             best_loss = (loss_total / len(X_train))
 
-    plt.plot(range(0, epochs, 1), losses)
-    plt.show()
+    #plt.plot(range(0, epochs, 1), losses)
+    #plt.show()
 
     print('\nAfter training:')
     #print("Best training accuracy:", best_accuracy)
