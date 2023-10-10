@@ -26,7 +26,6 @@ def dot(matrix1, matrix2):
     '''print("my dot:", result)
     print("numpy dot:", num)
     np.testing.assert_allclose(result, num, rtol=1e-5, atol=0)'''
-    
 
     return result
 
@@ -60,7 +59,7 @@ def ktimesv(k, u):
 def elementwise_multiply(u, v):
 
     if((len(u) != len(v)) or (len(u[0]) != len(v[0]))):
-        print("matrices must be same size to add elementwise")
+        print("matrices must be same size to multiply elementwise")
         print_size(u)
         print_size(v)
         print("are not the same size")
@@ -96,7 +95,7 @@ def elementwise_add(u, v):
 def elementwise_sub(u, v):
 
     if((len(u) != len(v)) or (len(u[0]) != len(v[0]))):
-        print("matrices must be same size to add elementwise")
+        print("matrices must be same size to subtract elementwise")
         print_size(u)
         print_size(v)
         print("are not the same size")
@@ -126,3 +125,18 @@ def print_size(matrix):
         print("(", len(matrix), ",", 1, ")")
     else: 
         print("(", len(matrix), ",", len(matrix[0]), ")")
+
+#simply prints all the info about the network being trained
+def print_train_status(dataset, n_layers, input_dim, output_dim, hidden_units, learning_rate, epochs, split):
+
+    print("\n**************** Training a MLP with the following details ****************")
+    print("Dataset: ", dataset)
+    print("Number of layers: ", n_layers)
+    print("Input dimensions: ", input_dim)
+    print("Output dimensions: ", output_dim)
+    print("Number of hidden units in each layer: ", hidden_units)
+    print("Learning rate: ", learning_rate)
+    print("Epochs: ", epochs)
+    print("Train/test split: ", split)
+
+    return

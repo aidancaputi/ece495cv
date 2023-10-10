@@ -5,8 +5,8 @@ def main():
 
     #create dataset with 90/10 train/test split
     X, y = generate_xor_dataset(100)
-    X_train, y_train, X_test, y_test = train_test_slit(X, y, 0.9)
-    #print(len(X_train), len(y_train), len(X_test), len(y_test))
+    train_test_split = 0.9
+    X_train, y_train, X_test, y_test = train_test_slit(X, y, train_test_split)
 
     n_layers = 3 #number of layers
     input_dim = len(X[0]) #input dimensions
@@ -22,7 +22,7 @@ def main():
         #train test split
         #epochs
 
-    train(X_train, y_train, X_test, y_test, n_layers, input_dim, output_dim, hidden_units, learning_rate, num_epochs)
+    train(X_train, y_train, X_test, y_test, n_layers, input_dim, output_dim, hidden_units, learning_rate, num_epochs, train_test_split)
 
 
 if __name__ == "__main__":
