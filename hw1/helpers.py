@@ -130,13 +130,7 @@ def print_size(matrix):
 def print_train_status(dataset, n_layers, input_dim, output_dim, hidden_units, learning_rate, epochs, split):
 
     print("\n**************** Training a MLP with the following details ****************")
-    print("Dataset: ", dataset)
-    print("Number of layers: ", n_layers)
-    print("Input dimensions: ", input_dim)
-    print("Output dimensions: ", output_dim)
-    print("Number of hidden units in each layer: ", hidden_units)
-    print("Learning rate: ", learning_rate)
-    print("Epochs: ", epochs)
-    print("Train/test split: ", split)
+    #print(" | dataset | number of layers | hidden units per layer | learning rate | epochs | train/test split |")
+    print(f" | {dataset} dataset | {n_layers} hidden layers | {hidden_units} units per hidden layer | learning rate:{learning_rate} | {epochs} epochs | train/test split:{split} |")
 
     return
