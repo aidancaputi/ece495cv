@@ -6,15 +6,15 @@ def generate_dataset(dataset_name):
     y = []
 
     if(dataset_name == 'xor'):
-        for i in range(25):
-            X.append([random.uniform(0, 49) / 100, random.uniform(0, 49) / 100])
-            y.append([0])
-            X.append([random.uniform(0, 49) / 100, random.uniform(50, 100) / 100])
-            y.append([1])
-            X.append([random.uniform(50, 100) / 100, random.uniform(0, 49) / 100])
-            y.append([1])
-            X.append([random.uniform(50, 100) / 100, random.uniform(50, 100) / 100])
-            y.append([0])
+
+        X.append([random.uniform(0, 49) / 100, random.uniform(0, 49) / 100])
+        y.append([0])
+        X.append([random.uniform(0, 49) / 100, random.uniform(50, 100) / 100])
+        y.append([1])
+        X.append([random.uniform(50, 100) / 100, random.uniform(0, 49) / 100])
+        y.append([1])
+        X.append([random.uniform(50, 100) / 100, random.uniform(50, 100) / 100])
+        y.append([0])
 
     else:
         for i in range(25):

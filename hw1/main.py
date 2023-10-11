@@ -27,7 +27,7 @@ def main():
             best_loss = loss
             best_hyperparameters = hyperparameters
 
-    print(best_loss, best_hyperparameters)
+    print("best loss for hyperparameters test was:", best_loss, "with the parameters", best_hyperparameters)
     
     best_loss = 1.0
     best_lr = 0.0
@@ -37,7 +37,7 @@ def main():
             best_loss = loss
             best_lr = lr
 
-    print(best_loss, best_lr)
+    print("best loss for learning rate test was:", best_loss, "with a learning rate of", best_lr)
 
     best_loss = 1.0
     best_epochs = 0.0
@@ -47,16 +47,25 @@ def main():
             best_loss = loss
             best_epochs = epochs
 
-    print(best_loss, best_epochs)
+    print("best loss for epochs test was:", best_loss, "with", best_epochs, "epochs")
 
-    exit(0)
+    best_loss = 1.0
+    best_split = 0.0
+    for split in splits_to_try:
+        loss = train2('adder', best_hyperparameters, best_lr, best_epochs, split)
+        if(loss < best_loss):
+            best_loss = loss
+            best_split = split
 
-    test_losses.update({['adder', (2,20), 0.03, 500, 0.8]:train2('adder', (2,20), 0.03, 500, 0.8)})
-    test_losses.update({['adder', (2,20), 0.03, 500, 0.8]:train2('adder', (2,20), 0.03, 500, 0.8)})
-    test_losses.update({['adder', (2,20), 0.03, 500, 0.8]:train2('adder', (2,20), 0.03, 500, 0.8)})
+    print("best loss for training split test was:", best_loss, "with training split", best_split)
     
-                
-
+    print("\nso, the best network for the adder dataset has the following details:")
+    print("hidden layers:", best_hyperparameters[0])
+    print("units per hidden layer:", best_hyperparameters[1])
+    print("learning rate:", best_lr)
+    print("epochs:", best_epochs)
+    print("train/test split:", best_split)
+    train2('adder', best_hyperparameters, best_lr, best_epochs, best_split)
 
 
 if __name__ == "__main__":
