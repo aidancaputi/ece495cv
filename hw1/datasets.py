@@ -1,106 +1,53 @@
 import math, random
 
-def generate_dataset(dataset_name):
-
-    X = []
-    y = []
-
-    if(dataset_name == 'xor'):
-
-        X.append([random.uniform(0, 49) / 100, random.uniform(0, 49) / 100])
-        y.append([0])
-        X.append([random.uniform(0, 49) / 100, random.uniform(50, 100) / 100])
-        y.append([1])
-        X.append([random.uniform(50, 100) / 100, random.uniform(0, 49) / 100])
-        y.append([1])
-        X.append([random.uniform(50, 100) / 100, random.uniform(50, 100) / 100])
-        y.append([0])
-
-    else:
-        for i in range(25):
-            #00000 -> 000
-            X.append([random.uniform(0, 49) / 100, random.uniform(0, 49) / 100, random.uniform(0, 49) / 100, random.uniform(0, 49) / 100, random.uniform(0, 49) / 100])
-            y.append([0, 0, 0])
-
-            #10000 -> 100
-            X.append([random.uniform(50, 100) / 100, random.uniform(0, 49) / 100, random.uniform(0, 49) / 100, random.uniform(0, 49) / 100, random.uniform(0, 49) / 100])
-            y.append([1, 0, 0])
-
-            #01000 -> 010
-            X.append([random.uniform(0, 49) / 100, random.uniform(50, 100) / 100, random.uniform(0, 49) / 100, random.uniform(0, 49) / 100, random.uniform(0, 49) / 100])
-            y.append([0, 1, 0])
-
-            #10100 -> 010
-            X.append([random.uniform(50, 100) / 100, random.uniform(0, 49) / 100, random.uniform(50, 100) / 100, random.uniform(0, 49) / 100, random.uniform(0, 49) / 100])
-            y.append([0, 1, 0])
-
-            #01010 -> 001
-            X.append([random.uniform(0, 49) / 100, random.uniform(50, 100) / 100, random.uniform(0, 49) / 100, random.uniform(50, 100) / 100, random.uniform(0, 49) / 100])
-            y.append([0, 0, 1])
-
-            #01001 -> 110
-            X.append([random.uniform(0, 49) / 100, random.uniform(50, 100) / 100, random.uniform(0, 49) / 100, random.uniform(0, 49) / 100, random.uniform(50, 100) / 100])
-            y.append([1, 1, 0])
-
-            #10101 -> 110
-            X.append([random.uniform(50, 100) / 100, random.uniform(0, 49) / 100, random.uniform(50, 100) / 100, random.uniform(0, 49) / 100, random.uniform(50, 100) / 100])
-            y.append([1, 1, 0])
-
-            #11111 -> 111
-            X.append([random.uniform(50, 100) / 100, random.uniform(50, 100) / 100, random.uniform(50, 100) / 100, random.uniform(50, 100) / 100, random.uniform(50, 100) / 100])
-            y.append([1, 1, 1])
-
-    return X, y
-
 def generate_dataset2(dataset_name):
 
     X = []
     y = []
 
     if(dataset_name == 'xor'):
-        for i in range(100):
-            X.append([0.0, 0.0])
-            y.append([0])
-            X.append([0.0, 1.0])
-            y.append([1])
-            X.append([1.0, 0.0])
-            y.append([1])
-            X.append([1.0, 1.0])
-            y.append([0])
+        X.append([0.0, 0.0])
+        y.append([0])
+        X.append([0.0, 1.0])
+        y.append([1])
+        X.append([1.0, 0.0])
+        y.append([1])
+        X.append([1.0, 1.0])
+        y.append([0])
 
     else:
-        for i in range(100):
-            #00000 -> 000
-            X.append([0.0, 0.0, 0.0, 0.0, 0.0])
-            y.append([0, 0, 0])
+        #for i in range(100):
+        #00000 -> 000
+        X.append([0.0, 0.0, 0.0, 0.0, 0.0])
+        y.append([0, 0, 0])
 
-            #10000 -> 100
-            X.append([1.0, 0.0, 0.0, 0.0, 0.0])
-            y.append([1, 0, 0])
+        #10000 -> 100
+        X.append([1.0, 0.0, 0.0, 0.0, 0.0])
+        y.append([1, 0, 0])
 
-            #01000 -> 010
-            X.append([0.0, 1.0, 0.0, 0.0, 0.0])
-            y.append([0, 1, 0])
+        #01000 -> 010
+        X.append([0.0, 1.0, 0.0, 0.0, 0.0])
+        y.append([0, 1, 0])
 
-            #10100 -> 010
-            X.append([1.0, 0.0, 1.0, 0.0, 0.0])
-            y.append([0, 1, 0])
+        #10100 -> 010
+        X.append([1.0, 0.0, 1.0, 0.0, 0.0])
+        y.append([0, 1, 0])
 
-            #01010 -> 001
-            X.append([0.0, 1.0, 0.0, 1.0, 0.0])
-            y.append([0, 0, 1])
+        #01010 -> 001
+        X.append([0.0, 1.0, 0.0, 1.0, 0.0])
+        y.append([0, 0, 1])
 
-            #01001 -> 110
-            X.append([0.0, 1.0, 0.0, 0.0, 1.0])
-            y.append([1, 1, 0])
+        #01001 -> 110
+        X.append([0.0, 1.0, 0.0, 0.0, 1.0])
+        y.append([1, 1, 0])
 
-            #10101 -> 110
-            X.append([1.0, 0.0, 1.0, 0.0, 1.0])
-            y.append([1, 1, 0])
+        #10101 -> 110
+        X.append([1.0, 0.0, 1.0, 0.0, 1.0])
+        y.append([1, 1, 0])
 
-            #11111 -> 111
-            X.append([1.0, 1.0, 1.0, 1.0, 1.0])
-            y.append([1, 1, 1])
+        #11111 -> 111
+        X.append([1.0, 1.0, 1.0, 1.0, 1.0])
+        y.append([1, 1, 1])
 
     return X, y
 
