@@ -120,7 +120,7 @@ def train2(dataset, hyperparameters, learning_rate, num_epochs, train_test_split
     output_dim = len(y[0]) #output dimensions
     hidden_units = hyperparameters[1] #hidden units in each layer
     
-    print_train_status(dataset, n_hid_layers, input_dim, output_dim, hidden_units, learning_rate, num_epochs, train_test_split)
+    #print_train_status(dataset, n_hid_layers, input_dim, output_dim, hidden_units, learning_rate, num_epochs, train_test_split)
 
     weights = initialize_weights(n_layers, hidden_units, input_dim, output_dim)
     
@@ -132,6 +132,8 @@ def train2(dataset, hyperparameters, learning_rate, num_epochs, train_test_split
         #print("training... epoch", epoch)
         
         #front pass
+        #print_size(X_train)
+        #print_size(weights[0])
         out, cache = mlp(X_train, weights, biases)
 
         #print("epoch:", epoch, " -> loss:", loss_fn(y_train, out)[0])
@@ -169,18 +171,12 @@ def train2(dataset, hyperparameters, learning_rate, num_epochs, train_test_split
 
     accurate = 0
     test_losses = []
-    predictions = []
 
     for x, y in zip(X_test, y_test):
         in_x = [x]
         pred, cache = mlp(in_x, weights, biases)
         test_losses.append(loss_fn([y], pred)[0][0])
-        predictions.append(pred[0][0])
-        #print(pred[0][0], y[0])
-        if(int(pred[0][0] > 0.5) == y[0]):
-            accurate += 1
 
-    #print("final accuracy: ", float(accurate) / float(len(X_test)))
-    print("final test loss:", sum(test_losses) / len(predictions))
+    #print("final test loss:", sum(test_losses) / len(predictions))
 
-    return sum(test_losses) / len(predictions)
+    return sum(test_losses) / len(test_losses)

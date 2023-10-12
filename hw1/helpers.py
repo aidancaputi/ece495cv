@@ -4,11 +4,9 @@ import math, random
 def dot(matrix1, matrix2):
 
     #print("dotting")
-    #print_size(matrix1)
-    #print_size(matrix2)
-    if(len(matrix1) == len(matrix2)):
-        '''print_size(matrix1)
-        print_size(matrix2)'''
+    if(size(matrix1) == size(matrix2)):
+
+        
         result = elementwise_multiply(matrix1, matrix2)
         #num = np.multiply(matrix1, matrix2)
 
@@ -126,11 +124,19 @@ def print_size(matrix):
     else: 
         print("(", len(matrix), ",", len(matrix[0]), ")")
 
-#simply prints all the info about the network being trained
-def print_train_status(dataset, n_layers, input_dim, output_dim, hidden_units, learning_rate, epochs, split):
+def size(matrix):
+    if(isinstance(matrix[0], float)):
+        #print("(", len(matrix), ",", 1, ")")
+        return (len(matrix), 1)
+    else: 
+        #print("(", len(matrix), ",", len(matrix[0]), ")")
+        return (len(matrix), len(matrix[0]))
 
-    print("\n**************** Training a MLP with the following details ****************")
+#simply prints all the info about the network being trained
+def print_train_status(dataset, n_layers, hidden_units, learning_rate, epochs, split, loss):
+
+    #print("\n**************** Training a MLP with the following details ****************")
     #print(" | dataset | number of layers | hidden units per layer | learning rate | epochs | train/test split |")
-    print(f" | {dataset} dataset | {n_layers} hidden layers | {hidden_units} units per hidden layer | learning rate:{learning_rate} | {epochs} epochs | train/test split:{split} |")
+    print(f" | {dataset} dataset | {n_layers} hidden layers | {hidden_units} units per hidden layer | learning rate:{learning_rate} | {epochs} epochs | train/test split:{split} | ----> loss: {loss}")
 
     return
