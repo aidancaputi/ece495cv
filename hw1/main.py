@@ -55,7 +55,7 @@ def main():
                         adder_best_lr = lr
                         adder_best_epochs = epochs
                         adder_best_split = split
-
+    print("\n------------------------------------------------------------------------------------------------------")
     print("\nThe best network I tested for the xor dataset has the following details:")
     print("hidden layers:", xor_best_hyperparameters[0])
     print("units per hidden layer:", xor_best_hyperparameters[1])
@@ -72,10 +72,10 @@ def main():
     print("epochs:", adder_best_epochs)
     print("train/test split:", adder_best_split)
     print("testloss:", adder_best_loss, '\n')
-    print("------------------------------------------------------------------------------------------------------")
+    print("\n------------------------------------------------------------------------------------------------------")
 
     t1 = time.time()
-    print("Total runtime: ", int((t1 - t0) // 60), "m", round((t1 - t0) % 60, 1), "s")
+    print("\nTotal runtime: ", int((t1 - t0) // 60), "m", round((t1 - t0) % 60, 1), "s")
 
 
 if __name__ == "__main__":
