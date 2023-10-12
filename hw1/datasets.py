@@ -1,6 +1,6 @@
 import math, random
 
-def generate_dataset2(dataset_name):
+def generate_dataset(dataset_name):
 
     X = []
     y = []

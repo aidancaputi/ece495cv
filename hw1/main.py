@@ -28,7 +28,7 @@ def main():
             for hyperparameters in hyperparameters_to_try:
                 for lr in learning_rates_to_try:
                     for epochs in epochs_to_try:
-                        loss = train2('xor', hyperparameters, lr, epochs, split)
+                        loss = train('xor', hyperparameters, lr, epochs, split)
                         print_train_status('xor', hyperparameters[0], hyperparameters[1], lr, epochs, split, loss)
                         if(loss < xor_best_loss):
                             xor_best_loss = loss
@@ -47,7 +47,7 @@ def main():
         for hyperparameters in hyperparameters_to_try:
             for lr in learning_rates_to_try:
                 for epochs in epochs_to_try:
-                    loss = train2('adder', hyperparameters, lr, epochs, split)
+                    loss = train('adder', hyperparameters, lr, epochs, split)
                     print_train_status('adder', hyperparameters[0], hyperparameters[1], lr, epochs, split, loss)
                     if(loss < adder_best_loss):
                         adder_best_loss = loss

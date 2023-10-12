@@ -109,9 +109,9 @@ def step(val):
         return 1
     return 0
 
-def train2(dataset, hyperparameters, learning_rate, num_epochs, train_test_split):
+def train(dataset, hyperparameters, learning_rate, num_epochs, train_test_split):
 
-    X, y = generate_dataset2(dataset)
+    X, y = generate_dataset(dataset)
     X_train, y_train, X_test, y_test = train_test_slit(X, y, train_test_split)
 
     n_hid_layers = hyperparameters[0] #number of hidden layers
@@ -119,24 +119,15 @@ def train2(dataset, hyperparameters, learning_rate, num_epochs, train_test_split
     input_dim = len(X[0]) #input dimensions
     output_dim = len(y[0]) #output dimensions
     hidden_units = hyperparameters[1] #hidden units in each layer
-    
-    #print_train_status(dataset, n_hid_layers, input_dim, output_dim, hidden_units, learning_rate, num_epochs, train_test_split)
 
     weights = initialize_weights(n_layers, hidden_units, input_dim, output_dim)
     
     biases = initialize_biases(n_layers, hidden_units, output_dim)
-    #print(biases)
 
     for epoch in range(1, num_epochs + 1):
-
-        #print("training... epoch", epoch)
         
         #front pass
-        #print_size(X_train)
-        #print_size(weights[0])
         out, cache = mlp(X_train, weights, biases)
-
-        #print("epoch:", epoch, " -> loss:", loss_fn(y_train, out)[0])
         
         prev_grad = []
 
@@ -160,7 +151,6 @@ def train2(dataset, hyperparameters, learning_rate, num_epochs, train_test_split
                 weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, dot(transpose(cache[layer - 1]), hid_grad))) 
                 for row in ktimesv(learning_rate, hid_grad):
                     biases[layer] = elementwise_sub([biases[layer]], [row])[0]
-                #biases[layer] = elementwise_sub(biases[layer], ktimesv(learning_rate, hid_grad))
                 prev_grad = hid_grad
 
             #input to hidden layer
@@ -171,9 +161,6 @@ def train2(dataset, hyperparameters, learning_rate, num_epochs, train_test_split
                 weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, dot(transpose(X_train), input_grad))) 
                 for row in ktimesv(learning_rate, input_grad):
                     biases[layer] = elementwise_sub([biases[layer]], [row])[0]
-                #biases[layer] = elementwise_sub(biases[layer], ktimesv(learning_rate, input_grad)) 
-        
-    #print(biases)
 
     accurate = 0
     test_losses = []
