@@ -28,7 +28,7 @@ def main():
                     for epochs in epochs_to_try:
 
                         #train
-                        loss = train('xor', hyperparameters, lr, epochs, split)
+                        loss = train_and_test('xor', hyperparameters, lr, epochs, split)
                         print_train_status('xor', hyperparameters[0], hyperparameters[1], lr, epochs, split, loss)
 
                         #if the loss was the new lowest
@@ -55,7 +55,7 @@ def main():
                 for epochs in epochs_to_try:
 
                     #train
-                    loss = train('adder', hyperparameters, lr, epochs, split)
+                    loss = train_and_test('adder', hyperparameters, lr, epochs, split)
                     print_train_status('adder', hyperparameters[0], hyperparameters[1], lr, epochs, split, loss)
 
                     #if the loss was the new lowest

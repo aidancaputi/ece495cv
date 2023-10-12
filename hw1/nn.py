@@ -96,15 +96,8 @@ def sigmoid_derivative(sig):
     one_minus_sig = [[(1-element) for element in row] for row in sig]
     return dot(sig, one_minus_sig)
 
-#this must return something that is the same size as weights
-def gradient(further_output, deriv_from_front_pass, input_to_layer):
-
-    return dot(transpose(input_to_layer), dot(further_output, deriv_from_front_pass))
-
-
-
 #train MLP
-def train(dataset, hyperparameters, learning_rate, num_epochs, train_test_split):
+def train_and_test(dataset, hyperparameters, learning_rate, num_epochs, train_test_split):
 
     #create and partition dataset
     X, y = generate_dataset(dataset)
@@ -138,17 +131,17 @@ def train(dataset, hyperparameters, learning_rate, num_epochs, train_test_split)
                 #update weights
                 further_output = cost(out, y_train)
                 deriv_from_front_pass = sigmoid_derivative(cache[layer])
-                output_grad = dot(further_output, deriv_from_front_pass)
+                output_grad_without_input_to_layer = dot(further_output, deriv_from_front_pass)
                 input_to_layer = cache[layer - 1]
-                #weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, dot(transpose(input_to_layer), output_grad)))
-                weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, gradient(further_output, deriv_from_front_pass, input_to_layer)))
+
+                weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, dot(transpose(input_to_layer), output_grad_without_input_to_layer)))
 
                 #update biases
-                for row in ktimesv(learning_rate, output_grad):
+                for row in ktimesv(learning_rate, output_grad_without_input_to_layer):
                     biases[layer] = elementwise_sub([biases[layer]], [row])[0]
 
                 #save gradient for next layer
-                prev_grad = output_grad
+                prev_grad = output_grad_without_input_to_layer
 
             #hidden to hidden layer
             elif((layer != (n_layers - 1)) and (layer != 0)):
@@ -156,17 +149,16 @@ def train(dataset, hyperparameters, learning_rate, num_epochs, train_test_split)
                 #update weights
                 further_output = dot(prev_grad, transpose(weights[layer + 1]))
                 deriv_from_front_pass = sigmoid_derivative(cache[layer])
-                hid_grad = dot(further_output, deriv_from_front_pass)
+                hid_grad_without_input_to_layer = dot(further_output, deriv_from_front_pass)
                 input_to_layer = cache[layer - 1]
-                #weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, dot(transpose(input_to_layer), hid_grad))) 
-                weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, gradient(further_output, deriv_from_front_pass, input_to_layer))) 
+                weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, dot(transpose(input_to_layer), hid_grad_without_input_to_layer))) 
 
                 #update biases
-                for row in ktimesv(learning_rate, hid_grad):
+                for row in ktimesv(learning_rate, hid_grad_without_input_to_layer):
                     biases[layer] = elementwise_sub([biases[layer]], [row])[0]
 
                 #save gradient for next layer
-                prev_grad = hid_grad
+                prev_grad = hid_grad_without_input_to_layer
 
             #input to hidden layer
             else:
@@ -174,13 +166,12 @@ def train(dataset, hyperparameters, learning_rate, num_epochs, train_test_split)
                 #update weights
                 further_output = dot(prev_grad, transpose(weights[layer + 1]))
                 deriv_from_front_pass = sigmoid_derivative(cache[layer])
-                input_grad = dot(further_output, deriv_from_front_pass)
+                input_grad_without_input_to_layer = dot(further_output, deriv_from_front_pass)
                 input_to_layer = X_train
-                #weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, dot(transpose(input_to_layer), input_grad))) 
-                weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, gradient(further_output, deriv_from_front_pass, input_to_layer))) 
+                weights[layer] = elementwise_sub(weights[layer], ktimesv(learning_rate, dot(transpose(input_to_layer), input_grad_without_input_to_layer))) 
 
                 #update biases
-                for row in ktimesv(learning_rate, input_grad):
+                for row in ktimesv(learning_rate, input_grad_without_input_to_layer):
                     biases[layer] = elementwise_sub([biases[layer]], [row])[0]
 
     test_losses = []
