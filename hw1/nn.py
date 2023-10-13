@@ -87,10 +87,6 @@ def loss_fn(y, pred):
     u_minus_v = elementwise_sub(y, pred)
     return dot(u_minus_v, u_minus_v)
 
-#cost function
-def cost(y, pred):
-    return elementwise_sub(y, pred)
-
 #sigmoid derivative of a value thats already been sigmoided
 def sigmoid_derivative(sig):
     one_minus_sig = [[(1-element) for element in row] for row in sig]
