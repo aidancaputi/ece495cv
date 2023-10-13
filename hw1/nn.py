@@ -129,7 +129,7 @@ def train_and_test(dataset, hyperparameters, learning_rate, num_epochs, train_te
             if(layer == (n_layers - 1)):
 
                 #update weights
-                further_output = cost(out, y_train)
+                further_output = ktimesv(2, elementwise_sub(y_train, out)) 
                 deriv_from_front_pass = sigmoid_derivative(cache[layer])
                 output_grad_without_input_to_layer = dot(further_output, deriv_from_front_pass)
                 input_to_layer = cache[layer - 1]

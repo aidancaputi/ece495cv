@@ -135,8 +135,6 @@ def size(matrix):
 #simply prints all the info about the network being trained
 def print_train_status(dataset, n_layers, hidden_units, learning_rate, epochs, split, loss):
 
-    #print("\n**************** Training a MLP with the following details ****************")
-    #print(" | dataset | number of layers | hidden units per layer | learning rate | epochs | train/test split |")
     print(f" | {dataset} dataset | {n_layers} hidden layers | {hidden_units} units per hidden layer | learning rate:{learning_rate} | {epochs} epochs | train/test split:{split} | ----> loss: {loss}")
 
     return

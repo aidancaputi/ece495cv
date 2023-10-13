@@ -9,7 +9,7 @@ def main():
     t0 = time.time()
 
     #establish the different parameters we want to test
-    splits_to_try = [0.5, 0.75, 0.9]
+    splits_to_try = [0.5, 0.6, 0.75]
     hyperparameters_to_try = [(1, 5), (1, 10), (2, 5), (2, 10), (3, 5)] #these are in the form (number of hidden layers, number of units per layer)
     learning_rates_to_try = [0.001, 0.01, 0.1]
     epochs_to_try = [100, 500, 1000, 2000]
